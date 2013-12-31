@@ -1,0 +1,325 @@
+
+
+Souper User Manual - version 1.5                                              
+
+
+                   Souper - transfer mail and news to SOUP
+
+     Souper is a program that transfers mail and news from a POP3 mail server
+     and NNTP news server respectively to SOUP packets.  It can also send
+     messages in SOUP reply packets.  It runs on OS/2 Warp with the IBM
+     Internet Connection for OS/2.
+
+INSTALLATION
+
+     Copy the souper.exe file to a directory in your PATH.
+
+     Edit your \tcpip\etc\services file.  Look for a line beginning with the
+     word "pop3".  If the file does not contain such a line, add the line
+
+          pop3             110/tcp
+
+     to the file.
+
+     Souper is designed to work with the IBM Internet Connection for OS/2.  In
+     your PPP/SLIP settings notebook, you must fill in the entries for
+
+          Your Host Name:
+          Your Domain Name:
+          News Server:
+          Mail Gateway:
+          POP Mail Server:
+          Reply Domain:
+          Reply (Mail) ID:
+          POP Login ID:
+          POP Password:
+
+     Ask your Internet service provider for the correct values for these
+     settings.
+
+ENVIRONMENT VARIABLES
+
+     You can set these environment variables to change the default behaviour
+     of the program.
+
+     HOME      Specifies the user's home directory.  If not set, this defaults
+               to the current directory.  The program looks for the newsrc
+               file in the home directory.
+
+     NNTPSERVER
+               Specify the NNTP news server, overriding the news server given
+               in the PPP/SLIP settings notebook.
+
+     MAILER    Specify the command to execute to send mail.  If this is not
+               set, then Souper sends the mail directly to the mail server
+               specified in the PPP/SLIP settings notebook.
+
+     POSTER    Specify the command to execute to post news.  If this is not
+               set, then Souper posts the news directly to the news server
+               specified in the PPP/SLIP settings notebook.
+
+
+
+
+                                                                             1
+
+
+
+Souper User Manual - version 1.5                                              
+
+
+CREATE NEWSRC FILE
+
+     Use a text editor to create a file named newsrc in your home directory.
+     List the newsgroups you want to transfer, one per line, and end each line
+     with a colon.  For example:
+
+          comp.answers:
+          news.answers:
+          rec.humor.funny:
+
+     The program records the article numbers it has fetched by updating this
+     file.
+
+     If you use Yarn, be sure to give Souper a separate newsrc file from the
+     one used by Yarn.  The files must be separate and are used for different
+     purposes.  The Souper newsrc file records the articles you have
+     downloaded from the news server.  The Yarn newsrc file records the
+     articles you have read with the Yarn news reader.
+
+CREATE KILL FILE
+
+     A kill file specifies criteria used to kill news articles, that is,
+     exclude them from the SOUP packet.  You can kill articles that have a
+     specific subject, are from a specific poster, or contain a particular
+     string anywhere in the header.
+
+     By default, the program looks for a file named kill in your home
+     directory.  An entry in the kill file has the format:
+
+          <newsgroup> {
+            <where> <pattern>
+            ...
+          }
+
+     where
+
+     <newsgroup>
+               is the name of the newsgroup in which the search patterns
+               apply.  If the name is "all", the search patterns apply in all
+               newsgroups.
+
+     <where>   specifies where to search in the article.  "from" searches the
+               From line.  "subject" searches the Subject line.  "header"
+               searches all lines in the article header.
+
+     <pattern> is the string to search for.  All searches are case-
+               insensitive.
+
+     Here is an example kill file:
+
+          all {
+            From netkook
+          }
+          comp.os.os2.advocacy {
+            Subject Microsoft
+            Subject crash OS/2
+
+
+                                                                             2
+
+
+
+Souper User Manual - version 1.5                                              
+
+
+          }
+
+     In all newsgroups, articles from netkook are killed.  Also in the
+     comp.os.os2.advocacy newsgroup, articles with a Subject containing the
+     string "Microsoft" or "crash OS/2" are killed.
+
+OPERATION
+
+     To fetch your mail and news, run the command
+
+          souper
+
+     You can specify a different POP3 mail server than the one specified in
+     the PPP/SLIP settings notebook by instead running the command
+
+          souper <mailhost> <userid> <password>
+
+     where
+
+     <mailhost>
+               is the name of the host running the POP3 mail server
+
+     <userid>  is your POP3 user ID
+
+     <password>
+               is your POP3 password
+
+     If you want to transfer only news, specify the -m option to disable the
+     mail transfer.
+
+          souper -m
+
+     If you want to transfer only mail, specify the -n option to disable the
+     news transfer.
+
+          souper -n
+
+
+     The program creates the AREAS and *.MSG files of the SOUP packet in the
+     current directory.  Here's a typical batch file designed to import news
+     into Yarn:
+
+          cd \temp
+          souper
+          import -u
+
+     And to export messages from Yarn:
+
+          cd \temp
+          unzip -o \home\reply.zip
+          del \home\reply.zip
+          souper -s
+
+
+
+
+
+
+                                                                             3
+
+
+
+Souper User Manual - version 1.5                                              
+
+
+OPTIONS
+
+     The program accepts the following command line options.
+
+     -a        Check for new newsgroups.  If any newgroups were created since
+               the last time Souper was run, add the new newsgroups to your
+               newsrc file.
+
+     -c n      Catch up news.  Mark every article in every newsgroup as read
+               except for the last n articles.
+
+     -h dir    Set home directory.  This option overrides any HOME environment
+               setting.  If the HOME environment variable is not set, the
+               default is the current directory.
+
+     -i        Do not read the configuration from the IBM Internet Connection
+               for OS/2 settings notebook.  If the use this option, you must
+               specify the required mail and news host information through the
+               command line and environment variables.
+
+     -k n      Set maximum news packet size in Kbytes.  The default is 2048
+               Kbytes.  If you set this to 0, the packet size is unlimited.
+
+     -K file   Specify another kill file.  The default is the kill file in the
+               home directory.
+
+     -l n      Kill articles that contain more than n lines in the body.
+
+     -m        Do not get mail.
+
+     -n        Do not get news.
+
+     -N file   Specify another newsrc file.  The default is the newsrc file in
+               the home directory.
+
+     -r        Set read only mode.  Do not empty your POP3 mailbox or update
+               the newsrc file.
+
+     -s        Send replies.  The program expects the SOUP reply files in the
+               current directory.
+
+     -u        When fetching news, create SOUP summaries instead of
+               transfering entire articles.
+
+     -x        Do not process news Xref headers.
+
+ACKNOWLEDGEMENTS
+
+     This program is derived from popclient by Carl Harris <ceharris@vt.edu>
+     and uqwk by Steve Belczyk <seb3@gte.com>.
+
+
+
+
+
+
+
+
+                                                                             4
+
+
+
+Souper User Manual - version 1.5                                              
+
+
+STANDARD DISCLAIMER
+
+     The author makes no representations about the accuracy or suitability of
+     this material for any purpose.  It is provided "as is", without any
+     express or implied warranties.  The author will assume no liability for
+     damages either from the direct use of this product or as a consequence of
+     the use of this product.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                             5
+

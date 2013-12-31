@@ -1,0 +1,33 @@
+# $Id: Makefile.unx 1.1 1996/05/18 21:15:33 cthuang Exp $
+#
+# Makefile for souper, an NNTP and POP3 to SOUP client
+
+CFLAGS = -g -DUNIX
+CC = gcc
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+O = .o
+
+OBJECTS = areas$(O) kill$(O) news$(O) nntpcl$(O) pop3$(O) reply$(O) smtp$(O) \
+	socket$(O) souper$(O) regexp$(O)
+LIBS = -lsocket -lnsl
+PROGRAM = souper
+
+$(PROGRAM): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS) $(LIBS)
+
+$(OBJECTS): souper.h
+
+souper.doc: souper.1
+	cawf -man souper.1 >doc.tmp
+	bsfilt - <doc.tmp >souper.doc
+	del doc.tmp
+
+ci:
+	ci -u areas.c kill.c news.c nntpcl.c pop3.c reply.c socket.c souper.c
+	ci -u nntp.h nntpcl.h smtp.h socket.h souper.h Makefile
+
+clean:
+	-rm $(PROGRAM) *.o *.doc AREAS *.MSG

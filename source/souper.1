@@ -1,0 +1,275 @@
+.\" $Id: souper.1 $
+.\"
+.de EX		\"Begin example
+.ne 5
+.if n .sp 1
+.if t .sp .5
+.nf
+.in +5n
+..
+.de EE		\"End example
+.fi
+.in -5n
+.if n .sp 1
+.if t .sp .5
+..
+.TH Souper 1 " "
+.ds LH "Souper User Manual - version 1.5
+.ds CH "
+.ds RH "
+.ll 78n
+.na
+.ce 1
+.SH Souper \- transfer mail and news to SOUP
+.LP
+Souper is a program that transfers mail and news from a POP3 mail server
+and NNTP news server respectively to SOUP packets.
+It can also send messages in SOUP reply packets.
+It runs on OS/2 Warp with the IBM Internet Connection for OS/2.
+.SH INSTALLATION
+.LP
+Copy the souper.exe file to a directory in your PATH.
+.LP
+Edit your \\tcpip\\etc\\services file.
+Look for a line beginning with the word "pop3".
+If the file does not contain such a line, add the line
+.EX
+pop3             110/tcp
+.EE
+to the file.
+.LP
+Souper is designed to work with the IBM Internet Connection for OS/2.
+In your PPP/SLIP settings notebook, you must fill in the entries for
+.EX
+Your Host Name:
+Your Domain Name:
+News Server:
+Mail Gateway:
+POP Mail Server:
+Reply Domain:
+Reply (Mail) ID:
+POP Login ID:
+POP Password:
+.EE
+Ask your Internet service provider for the correct values for these settings.
+.SH ENVIRONMENT VARIABLES
+.LP
+You can set these environment variables to change the default behaviour
+of the program.
+.TP 10
+HOME
+Specifies the user's home directory.
+If not set, this defaults to the current directory.
+The program looks for the newsrc file in the home directory.
+.TP
+NNTPSERVER
+Specify the NNTP news server, overriding the news server given in the
+PPP/SLIP settings notebook.
+.TP
+MAILER
+Specify the command to execute to send mail.
+If this is not set, then Souper sends the mail directly to the mail server
+specified in the PPP/SLIP settings notebook.
+.TP
+POSTER
+Specify the command to execute to post news.
+If this is not set, then Souper posts the news directly to the news server
+specified in the PPP/SLIP settings notebook.
+.SH CREATE NEWSRC FILE
+.LP
+Use a text editor to create a file named
+.B newsrc
+in your home directory.
+List the newsgroups you want to transfer, one per line, and end each
+line with a colon.
+For example:
+.EX
+comp.answers:
+news.answers:
+rec.humor.funny:
+.EE
+The program records the article numbers it has fetched by updating
+this file.
+.LP
+If you use Yarn, be sure to give Souper a separate
+.B newsrc
+file from the one used by Yarn.
+The files must be separate and are used for different purposes.
+The Souper
+.B newsrc
+file records the articles you have downloaded from the news server.
+The Yarn
+.B newsrc
+file records the articles you have read with the Yarn news reader.
+.SH CREATE KILL FILE
+.LP
+A kill file specifies criteria used to kill news articles,
+that is, exclude them from the SOUP packet.
+You can kill articles that have a specific subject, are from
+a specific poster, or contain a particular string anywhere in the header.
+.LP
+By default, the program looks for a file named kill in your home directory.
+An entry in the kill file has the format:
+.EX
+<newsgroup> {
+  <where> <pattern>
+  ...
+}
+.EE
+where
+.TP 10
+<newsgroup>
+is the name of the newsgroup in which the search patterns apply.
+If the name is "all", the search patterns apply in all newsgroups.
+.TP
+<where>
+specifies where to search in the article.
+"from" searches the From line.
+"subject" searches the Subject line.
+"header" searches all lines in the article header.
+.TP
+<pattern>
+is the string to search for.
+All searches are case-insensitive.
+.ne 9
+.LP
+Here is an example kill file:
+.EX
+all {
+  From netkook
+}
+comp.os.os2.advocacy {
+  Subject Microsoft
+  Subject crash OS/2
+}
+.EE
+In all newsgroups, articles from netkook are killed.
+Also in the comp.os.os2.advocacy newsgroup, articles with a Subject
+containing the string "Microsoft" or "crash OS/2" are killed.
+.SH OPERATION
+.LP
+To fetch your mail and news, run the command
+.EX
+souper
+.EE
+You can specify a different POP3 mail server than the one specified in
+the PPP/SLIP settings notebook by instead running the command
+.EX
+souper <mailhost> <userid> <password>
+.EE
+where
+.TP 10
+<mailhost>
+is the name of the host running the POP3 mail server
+.TP
+<userid>
+is your POP3 user ID
+.TP
+<password>
+is your POP3 password
+.LP
+If you want to transfer only news, specify the -m option to disable the
+mail transfer.
+.EX
+souper -m
+.EE
+If you want to transfer only mail, specify the -n option to disable the
+news transfer.
+.EX
+souper -n
+.EE
+.LP
+The program creates the AREAS and *.MSG files of the SOUP packet in
+the current directory.
+Here's a typical batch file designed to import news into Yarn:
+.EX
+cd \\temp
+souper
+import -u
+.EE
+And to export messages from Yarn:
+.EX
+cd \\temp
+unzip -o \\home\\reply.zip
+del \\home\\reply.zip
+souper -s
+.EE
+.SH OPTIONS
+.LP
+The program accepts the following command line options.
+.TP 10
+\-a
+Check for new newsgroups.
+If any newgroups were created since the last time
+.B Souper
+was run, add the new newsgroups to your newsrc file.
+.TP 10
+\-c \fIn\fR
+Catch up news.
+Mark every article in every newsgroup as read except for the last
+.I n
+articles.
+.TP
+\-h \fIdir\fR
+Set home directory.
+This option overrides any HOME environment setting.
+If the HOME environment variable is not set,
+the default is the current directory.
+.TP
+\-i
+Do not read the configuration from the IBM Internet Connection for OS/2
+settings notebook.
+If the use this option, you must specify the required mail and news
+host information through the command line and environment variables.
+.TP
+\-k \fIn\fR
+Set maximum news packet size in Kbytes.
+The default is 2048 Kbytes.
+If you set this to 0, the packet size is unlimited.
+.TP
+\-K \fIfile\fR
+Specify another kill file.
+The default is the kill file in the home directory.
+.TP
+\-l \fIn\fR
+Kill articles that contain more than
+.I n
+lines in the body. 
+.TP
+\-m
+Do not get mail.
+.TP
+\-n
+Do not get news.
+.TP
+\-N \fIfile\fR
+Specify another newsrc file.
+The default is the newsrc file in the home directory.
+.TP
+\-r
+Set read only mode.
+Do not empty your POP3 mailbox or update the newsrc file.
+.TP
+\-s
+Send replies.
+The program expects the SOUP reply files in the current directory.
+.TP
+\-u
+When fetching news, create SOUP summaries instead of transfering
+entire articles.
+.TP
+\-x
+Do not process news Xref headers.
+.SH ACKNOWLEDGEMENTS
+.LP
+This program is derived from popclient by Carl Harris <ceharris@vt.edu>
+and uqwk by Steve Belczyk <seb3@gte.com>.
+.ne 8
+.SH STANDARD DISCLAIMER
+.LP
+The author makes no representations about the accuracy or suitability of
+this material for any purpose.
+It is provided "as is", without any express or implied warranties.
+The author will assume no liability for damages either from the direct use
+of this product or as a consequence of the use of this product.
+

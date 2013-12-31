@@ -1,0 +1,48 @@
+####################
+#
+# Makefile for Borland C++ 4.5; Uses DMAKE public domain make utility
+CC=bcc32
+TLINK=tlink32
+CFLAGS=-w32 -DWIN95=7; -v
+
+LINKFLAGS=-Tpe -ap -c -v -x -LD:\\BC45\\LIB 
+ENTRYPOINT=D:\\BC45\\LIB\\C0X32.obj
+
+LIBS=D:\\BC45\\LIB\\curseso.lib\
+	D:\\BC45\\LIB\\bidsf.lib\
+	D:\\BC45\\LIB\\import32.lib\
+	D:\\BC45\\LIB\\cw32.lib
+
+OBJS = souper.obj \
+	areas.obj \
+	getopt.obj \
+	kill.obj \
+	news.obj \
+	nntpcl.obj \
+	pop3.obj \
+	regexp.obj \
+	reply.obj \
+	smtp.obj \
+	socket.obj
+
+	
+all: souper95.exe
+
+souper95.exe: $(OBJS)
+	$(TLINK) $(LINKFLAGS) @$(mktmp \
+	   $(ENTRYPOINT)+$(OBJS:t"+\n")\n \
+	   souper95.exe,souper95.map\n\
+	   $(LIBS:t"+\n"))
+	
+
+
+
+######
+# Maintainance Targets
+######
+
+clean:
+	+rm *.obj
+	+rm *.tr2
+	+rm *.exe
+	+rm *.td2

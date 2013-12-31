@@ -1,0 +1,38 @@
+# $Id: Makefile.emx 1.1 1996/05/18 21:15:09 cthuang Exp $
+#
+# Makefile for souper, an NNTP and POP3 to SOUP client
+
+CFLAGS = -g -D__OS2__
+CC = gcc
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+O = .o
+
+OBJECTS = areas$(O) kill$(O) news$(O) nntpcl$(O) pop3$(O) reply$(O) smtp$(O) \
+	socket$(O) souper$(O)
+LIBS = -lregexp -lsocket
+PROGRAM = souper.exe
+
+$(PROGRAM): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS) $(LIBS)
+
+$(OBJECTS): souper.h
+
+souper.doc: souper.1
+	cawf -man souper.1 >doc.tmp
+	bsfilt - <doc.tmp >souper.doc
+	del doc.tmp
+
+ci:
+	ci -u areas.c kill.c news.c nntpcl.c pop3.c reply.c socket.c souper.c
+	ci -u nntp.h nntpcl.h smtp.h socket.h souper.h
+	ci -u Makefile.emx Makefile.uni Makefile.w95 Makefile.wc
+
+clean:
+	-copy *.exe ..
+	-copy *.doc ..
+	-del *.o
+	-del *.exe
+	-del *.doc

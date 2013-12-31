@@ -1,0 +1,52 @@
+VERSION 1.5
+
+- The program is now compiled with Watcom C++ 10.0b.  It no longer requires
+  the emx run-time DLLs.
+
+- If an outgoing message has a Resent-To header, the program now sends the
+  message to the address on that header instead of the usual To, Cc and Bcc
+  headers.
+
+- The download summary mode now marks articles as read.
+
+- Fix: When sending SMTP mail, the program included comments in the address
+  field of MAIL FROM and RCPT TO commands.
+
+VERSION 1.4
+
+- Now look up the service names "pop3" and then "pop" in that order in the
+  services file.
+
+- For killed articles, now display the header matching the kill expression.
+
+- Fix: The program tried to establish an SMTP connection to the host
+  specified by the POP Mail Server entry in the settings notebook.  It
+  now makes an SMTP connection to the host specified in the Mail Gateway
+  setting.
+
+VERSION 1.3
+
+- Now reads the configuration from the IBM Internet Connection for OS/2
+  settings notebook.  Use the -i command line option to ignore the settings.
+
+- The program can now send messages using SMTP and post articles using NNTP.
+
+- Added -a option to check for new newsgroups.
+
+- Added -l option to kill articles longer than a specified number of lines.
+
+- Added -u option to create SOUP news summary.
+
+- If a COMMANDS file exists in the current directory, the program now
+  processes SOUP sendme commands in the file.
+
+VERSION 1.2
+
+- Now display percentage progress indicator during download.
+
+- Fix: The first article was skipped if the user newly subscribed to a
+  newsgroup in which the lowest article number is 1.
+
+VERSION 1.1
+
+- Added simple kill file support.
